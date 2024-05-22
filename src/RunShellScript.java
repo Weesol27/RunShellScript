@@ -1,10 +1,8 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class RunShellScript {
-    private static final String CONFIG_FILE = "RunShellconfig.txt";
+    private static final String CONFIG_FILE = "config.txt";
 
     public static void main(String[] args) {
         try {
@@ -28,28 +26,30 @@ public class RunShellScript {
                 if (files == null || files.length == 0) {
                     System.out.println("No .sh files found in the current directory.");
                     return;
+                } else if (files.length == 1) {
+                    // Automatically select the only .sh file
+                    selectedScript = files[0].getName();
+                    System.out.println("Found only one .sh file, automatically selecting: " + selectedScript);
+                } else {
+                    // Display the .sh files and ask the user to choose one
+                    System.out.println("Found the following .sh files:");
+                    for (int i = 0; i < files.length; i++) {
+                        System.out.println((i + 1) + ": " + files[i].getName());
+                    }
+
+                    Scanner scanner = new Scanner(System.in);
+                    System.out.print("Enter the number of the script you want to run: ");
+                    int choice = scanner.nextInt();
+                    scanner.close();
+
+                    if (choice < 1 || choice > files.length) {
+                        System.out.println("Invalid choice.");
+                        return;
+                    }
+
+                    selectedScript = files[choice - 1].getName();
+                    System.out.println("Running script: " + selectedScript);
                 }
-
-                // Display the .sh files and ask the user to choose one
-                System.out.println("Found the following .sh files:");
-                List<String> scriptNames = new ArrayList<>();
-                for (int i = 0; i < files.length; i++) {
-                    scriptNames.add(files[i].getName());
-                    System.out.println((i + 1) + ": " + files[i].getName());
-                }
-
-                Scanner scanner = new Scanner(System.in);
-                System.out.print("Enter the number of the script you want to run: ");
-                int choice = scanner.nextInt();
-                scanner.close();
-
-                if (choice < 1 || choice > scriptNames.size()) {
-                    System.out.println("Invalid choice.");
-                    return;
-                }
-
-                selectedScript = scriptNames.get(choice - 1);
-                System.out.println("Running script: " + selectedScript);
 
                 // Save the choice to the config file
                 BufferedWriter configWriter = new BufferedWriter(new FileWriter(configFile));
